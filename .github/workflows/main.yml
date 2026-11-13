@@ -1,1 +1,39 @@
 
+
+name: Build Tractor Manager APK
+
+'on':
+  workflow_dispatch:
+  push:
+    branches:
+      - main
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Extract project
+        run: |
+          unzip -q tractor-manager-upload-under-25mb.zip -d source
+          chmod +x source/android/gradlew
+
+      - name: Setup Java
+        uses: actions/setup-java@v4
+        with:
+          distribution: temurin
+          java-version: '17'
+
+      - name: Build APK
+        run: |
+          cd source/android
+          ./gradlew assembleDebug
+
+      - name: Upload APK
+        uses: actions/upload-artifact@v4
+        with:
+          name: Tractor-Manager-APK
+          path: source/android/app/build/outputs/apk/debug/app-debug.apk
